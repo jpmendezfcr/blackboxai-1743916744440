@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+'use strict';
 
 export const colors = {
   primary: '#2c3e50',
@@ -16,7 +16,7 @@ export const colors = {
   lightGray: '#bdc3c7',
 };
 
-export const commonStyles = StyleSheet.create({
+export const commonStyles = {
   container: {
     flex: 1,
     backgroundColor: colors.light,
@@ -72,58 +72,9 @@ export const commonStyles = StyleSheet.create({
     fontSize: 14,
     marginTop: 5,
   },
-  drawerHeader: {
-    padding: 20,
-    backgroundColor: colors.primary,
-    marginBottom: 10,
-  },
-  drawerUserInfo: {
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  drawerUserPhoto: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    marginBottom: 10,
-  },
-  drawerUserName: {
-    color: colors.white,
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  drawerUserEmail: {
-    color: colors.light,
-    fontSize: 14,
-  },
-  drawerSection: {
-    flex: 1,
-    marginTop: 10,
-  },
-  drawerItem: {
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.lightGray,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  drawerItemText: {
-    marginLeft: 15,
-    fontSize: 16,
-    color: colors.dark,
-  },
-  pickerContainer: {
-    backgroundColor: colors.white,
-    borderRadius: 8,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: colors.lightGray,
-  },
-  loadingOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255,255,255,0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
+};
+
+export default {
+  colors,
+  commonStyles,
+};
