@@ -1,4 +1,4 @@
-<?php
+ndezfcr<?php
 require_once '../config.php';
 
 // Habilitar CORS
@@ -149,18 +149,19 @@ function createEvent($userId) {
                 :location, :event_type, :priority, :color
             )
         ");
-        
+        $start = date('Y-m-d H:i:s', strtotime($data['start_date']));
+$end = date('Y-m-d H:i:s', strtotime($data['end_date']));
         $stmt->execute([
-            ':user_id' => $userId,
-            ':title' => $data['title'],
-            ':description' => $data['description'] ?? null,
-            ':start_date' => $data['start_date'],
-            ':end_date' => $data['end_date'],
-            ':location' => $data['location'] ?? null,
-            ':event_type' => $data['event_type'] ?? 'appointment',
-            ':priority' => $data['priority'] ?? 'medium',
-            ':color' => $data['color'] ?? '#3498db'
-        ]);
+    ':user_id' => $userId,
+    ':title' => $data['title'],
+    ':description' => $data['description'] ?? null,
+    ':start_date' => $start,
+    ':end_date' => $end,
+    ':location' => $data['location'] ?? null,
+    ':event_type' => $data['event_type'] ?? 'appointment',
+    ':priority' => $data['priority'] ?? 'medium',
+    ':color' => $data['color'] ?? '#3498db'
+]);
         
         $eventId = $pdo->lastInsertId();
         
@@ -205,11 +206,11 @@ function createEvent($userId) {
             'message' => 'Evento creado exitosamente',
             'event_id' => $eventId
         ]);
-    } catch (PDOException $e) {
-        $pdo->rollBack();
-        http_response_code(500);
-        echo json_encode(['error' => 'Error al crear el evento']);
-    }
+} catch (PDOException $e) {
+    $pdo->rollBack();
+    http_response_code(500);
+    echo json_encode(['error' => 'Error al crear el evento', 'details' => $e->getMessage()]);
+}   
 }
 
 function updateEvent($userId) {
@@ -409,4 +410,60 @@ function createTag($userId) {
         echo json_encode(['error' => 'Error al crear la etiqueta']);
     }
 }
+
+
+function generateJWT($userId) {
+    $header = json_encode(['typ' => 'JWT', 'alg' => 'HS256']);
+    $payload = json_encode([
+        'user_id' => $userId,
+        'iat' => time(),
+        'exp' => time() + (60 * 60 * 24) // 24 horas
+    ]);
+
+    $base64Header = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($header));
+    $base64Payload = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($payload));
+
+    $secret = 'your-256-bit-secret';
+    $signature = hash_hmac('sha256', $base64Header . "." . $base64Payload, $secret, true);
+    $base64Signature = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));
+
+    return $base64Header . "." . $base64Payload . "." . $base64Signature;
+}
+
+function validateJWT($token) {
+    $tokenParts = explode('.', $token);
+    if (count($tokenParts) != 3) {
+        return false;
+    }
+
+    $header = base64_decode($tokenParts[0]);
+    $payload = base64_decode($tokenParts[1]);
+    $signatureProvided = $tokenParts[2];
+
+    $secret = 'your-256-bit-secret';
+    $base64Header = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($header));
+    $base64Payload = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($payload));
+
+    $signature = hash_hmac('sha256', $base64Header . "." . $base64Payload, $secret, true);
+    $base64Signature = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));
+
+    if ($base64Signature === $signatureProvided) {
+        $payload = json_decode($payload);
+        if ($payload->exp > time()) {
+            return $payload;
+        }
+    }
+    return false;
+}
+
+function getBearerToken() {
+    $headers = getallheaders();
+    if (isset($headers['Authorization'])) {
+        if (preg_match('/Bearer\s(\S+)/', $headers['Authorization'], $matches)) {
+            return $matches[1];
+        }
+    }
+    return null;
+}
+
 ?>
