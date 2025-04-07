@@ -3,11 +3,10 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Configuración de la base de datos
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'avi_db');
 define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_PASS', '778c4536cddf99d0');
+define('DB_NAME', 'apiloveavi');
 
 // Configuración de rutas y directorios
 define('BASE_PATH', dirname(__FILE__));
